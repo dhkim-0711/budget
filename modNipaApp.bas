@@ -5,24 +5,11 @@ Public Sub GoExplorer(): Worksheets("사업탐색").Activate: RefreshExplorer: E
 Public Sub GoLayer(): Worksheets("레이어 현황").Activate: End Sub
 Public Sub GoHeadquarters(): Worksheets("본부별 현황").Activate: End Sub
 Public Sub GoDatabase(): Worksheets("사업 DB").Activate: End Sub
-Public Sub NewProject(): Dim ws As Worksheet: Set ws=Worksheets("등록수정"): ws.Range("A1").Value=0: ws.Range("D5:J15").ClearContents: ws.Activate: End Sub
-Public Sub EditProject(ByVal sourceRow As Long)
- Dim src As Worksheet, ws As Worksheet, i As Long: Set src=Worksheets("사업 DB"): Set ws=Worksheets("등록수정"): ws.Range("A1").Value=sourceRow
- For i=0 To 10: ws.Cells(5+i,4).Value=src.Cells(sourceRow,2+i).Value: Next i: ws.Activate
+Public Sub NewProject(): frmProjectEdit.LoadProject 0: frmProjectEdit.Show: End Sub
+Public Sub EditProject(ByVal sourceRow As Long): frmProjectEdit.LoadProject sourceRow: frmProjectEdit.Show: End Sub
+Public Sub ShowProjectCard(ByVal sourceRow As Long): If sourceRow>=2 Then frmProjectCard.LoadProject sourceRow: frmProjectCard.Show
 End Sub
-Public Sub ShowProjectCard(ByVal sourceRow As Long)
- Dim src As Worksheet, ws As Worksheet: If sourceRow<2 Then Exit Sub
- Set src=Worksheets("사업 DB"): Set ws=Worksheets("상세카드"): ws.Range("A1").Value=sourceRow: ws.Range("B2").Value=src.Cells(sourceRow,2).Value
- ws.Range("B5").Value=src.Cells(sourceRow,4).Value & "  |  " & src.Cells(sourceRow,5).Value & "  |  " & src.Cells(sourceRow,6).Value & "  |  " & src.Cells(sourceRow,8).Value & "  |  " & Format(src.Cells(sourceRow,9).Value,"#,##0") & " 백만원"
- ws.Range("B7").Value=src.Cells(sourceRow,10).Value: ws.Range("B11").Value=src.Cells(sourceRow,11).Value: ws.Range("B18").Value=src.Cells(sourceRow,12).Value: ws.Activate
-End Sub
-Public Sub EditCurrentProject(): EditProject CLng(Worksheets("상세카드").Range("A1").Value): End Sub
-Public Sub SaveProject()
- Dim src As Worksheet, ws As Worksheet, r As Long, i As Long: Set src=Worksheets("사업 DB"): Set ws=Worksheets("등록수정"): r=CLng(ws.Range("A1").Value)
- If Trim(ws.Range("D5").Value)="" Or Trim(ws.Range("D7").Value)="" Then MsgBox "사업명과 사업코드는 필수입니다.",vbExclamation: Exit Sub
- If r=0 Then r=src.Cells(src.Rows.Count,"B").End(xlUp).Row+1: src.Cells(r,1).Value="신규"
- For i=0 To 10: src.Cells(r,2+i).Value=ws.Cells(5+i,4).Value: Next i
- MsgBox "저장했습니다.",vbInformation: RefreshExplorer: ShowProjectCard r
+Public Sub PrepareProjectCard(ByVal sourceRow As Long): If sourceRow>=2 Then frmProjectCard.LoadProject sourceRow
 End Sub
 Public Sub ResetExplorer(): With Worksheets("사업탐색"): .Range("B8").Value="": .Range("C8").Value="전체": .Range("D8").Value="전체": End With: RefreshExplorer: End Sub
 Public Sub RefreshExplorer()
@@ -44,4 +31,8 @@ Public Sub RefreshExplorer()
 End Sub
 Public Sub FilterFromLayer(): With Worksheets("사업탐색"): .Range("C8").Value=ActiveCell.Value: .Range("D8").Value="전체": End With: GoExplorer: End Sub
 Public Sub FilterFromHeadquarters(): With Worksheets("사업탐색"): .Range("D8").Value=ActiveCell.Value: .Range("C8").Value="전체": End With: GoExplorer: End Sub
-Public Sub ShowSelectedProject(): Dim r As Long: r=ActiveCell.Row: If ActiveSheet.Name="사업탐색" And r>=12 Then ShowProjectCard CLng(Cells(r,1).Value): End Sub
+Public Sub ShowSelectedProject()
+ Dim r As Long: If ActiveSheet.Name<>"사업탐색" Then Exit Sub: r=ActiveCell.Row
+ If r<12 Or Cells(r,1).Value="" Then MsgBox "목록에서 확인할 사업 행을 먼저 선택하세요.",vbInformation: Exit Sub
+ ShowProjectCard CLng(Cells(r,1).Value)
+End Sub

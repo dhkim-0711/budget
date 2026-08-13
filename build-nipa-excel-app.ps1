@@ -39,7 +39,7 @@ function Add-Control($designer, $type, $name, $caption, $left, $top, $width, $he
   $c = $designer.Controls.Add($type, $name, $true)
   $c.Left=$left; $c.Top=$top; $c.Width=$width; $c.Height=$height
   if ($caption -ne $null) { $c.Caption=$caption }
-  $c.Font.Name='맑은 고딕'; $c.Font.Size=10
+  try { $c.Font.Name='맑은 고딕'; $c.Font.Size=10 } catch {}
   return $c
 }
 function Add-Button($sheet,$name,$caption,$left,$top,$width,$macro,$color=0x245F9E) {
@@ -60,13 +60,14 @@ try {
   $explorer.Range('B4:F4').Merge(); $explorer.Range('B4').Value2='검색·레이어·본부 조건으로 사업을 찾고 행을 더블클릭하면 상세 카드가 열립니다.'; $explorer.Range('B4').Font.Color=0x8A7560
   $explorer.Range('B7').Value2='검색어'; $explorer.Range('B8').Value2=''; $explorer.Range('C7').Value2='레이어'; $explorer.Range('C8').Value2='전체'; $explorer.Range('D7').Value2='NIPA 본부'; $explorer.Range('D8').Value2='전체'
   $explorer.Range('B7:D8').Borders.LineStyle=1; $explorer.Range('B7:D7').Font.Bold=$true; $explorer.Range('B7:D7').Interior.Color=0xF9F2EA
-  Add-Button $explorer 'btnSearch' '검색 적용' 420 124 100 'RefreshExplorer'
-  Add-Button $explorer 'btnReset' '조건 초기화' 530 124 100 'ResetExplorer' 0x9B8060
-  Add-Button $explorer 'btnNew' '신규 사업 등록' 640 124 120 'NewProject' 0x588B45
-  Add-Button $explorer 'btnHome' '홈으로' 770 124 90 'GoHome' 0x9B8060
+  Add-Button $explorer 'btnSearch' '검색 적용' 600 42 100 'RefreshExplorer'
+  Add-Button $explorer 'btnReset' '조건 초기화' 710 42 100 'ResetExplorer' 0x9B8060
+  Add-Button $explorer 'btnNew' '신규 사업 등록' 820 42 120 'NewProject' 0x588B45
+  Add-Button $explorer 'btnHome' '홈으로' 600 78 100 'GoHome' 0x9B8060
   $explorer.Application.ActiveWindow.DisplayGridlines=$false
 
   Write-Output 'STEP=VBA_MODULE'
+  $excel.Visible=$true
   $vb = $book.VBProject
   $modulePath=Join-Path $root 'work\modNipaApp-import.bas';$moduleText=[IO.File]::ReadAllText((Join-Path $root 'modNipaApp.bas'),[Text.Encoding]::UTF8);[IO.File]::WriteAllText($modulePath,$moduleText,[Text.Encoding]::Default);$module=$vb.VBComponents.Import($modulePath)
   if($false){
@@ -127,13 +128,13 @@ Public Sub ShowSelectedProject(): Dim r As Long: r=ActiveCell.Row: If ActiveShee
 '@)
   }
 
-  if($false){
+  if($true){
   $card = $vb.VBComponents.Add(3); $card.Name='frmProjectCard'; $card.Properties.Item('Caption').Value='NIPA 사업 상세'; $card.Properties.Item('Width').Value=620; $card.Properties.Item('Height').Value=600
   $d=$card.Designer
-  $head=Add-Control $d 'Forms.Label.1' 'lblTitle' '사업명' 18 14 560 42; $head.Font.Size=16; $head.Font.Bold=$true; $head.ForeColor=0x5B3712
+  $head=Add-Control $d 'Forms.Label.1' 'lblTitle' '사업명' 18 14 560 42; try{$head.Font.Size=16;$head.Font.Bold=$true}catch{}; $head.ForeColor=0x5B3712
   Add-Control $d 'Forms.Label.1' 'lblMeta' '' 18 58 560 32 | Out-Null
   $labels=@(@('개요',98),@('주요내용',198),@('추진방향',355))
-  foreach($item in $labels){$l=Add-Control $d 'Forms.Label.1' ('lbl'+$item[0]) $item[0] 18 $item[1] 90 20;$l.Font.Bold=$true;$l.ForeColor=0x5B3712}
+  foreach($item in $labels){$l=Add-Control $d 'Forms.Label.1' ('lbl'+$item[0]) $item[0] 18 $item[1] 90 20;try{$l.Font.Bold=$true}catch{};$l.ForeColor=0x5B3712}
   $txtOverview=Add-Control $d 'Forms.TextBox.1' 'txtOverview' $null 18 120 560 68; $txtOverview.MultiLine=$true; $txtOverview.WordWrap=$true; $txtOverview.Locked=$true; $txtOverview.ScrollBars=2
   $txtMain=Add-Control $d 'Forms.TextBox.1' 'txtMain' $null 18 220 560 125; $txtMain.MultiLine=$true; $txtMain.WordWrap=$true; $txtMain.Locked=$true; $txtMain.ScrollBars=2
   $txtDirection=Add-Control $d 'Forms.TextBox.1' 'txtDirection' $null 18 377 560 100; $txtDirection.MultiLine=$true; $txtDirection.WordWrap=$true; $txtDirection.Locked=$true; $txtDirection.ScrollBars=2
@@ -154,7 +155,7 @@ Private Sub btnEdit_Click(): Dim r As Long: r=CLng(Me.Tag): Unload Me: frmProjec
   $edit = $vb.VBComponents.Add(3); $edit.Name='frmProjectEdit'; $edit.Properties.Item('Caption').Value='NIPA 사업 등록·수정'; $edit.Properties.Item('Width').Value=650; $edit.Properties.Item('Height').Value=650
   $ed=$edit.Designer; $fieldNames=@('사업명','세부사업명','사업코드','회계','레이어','과기정통부 소관','NIPA 본부','2026년 예산(백만원)','개요','주요내용','추진방향'); $controlNames=@('txtName','txtParent','txtCode','cmbAccount','cmbLayer','txtOrg','txtHq','txtBudget','txtOverview','txtMain','txtDirection')
   $top=18
-  for($i=0;$i -lt $fieldNames.Count;$i++){ $lab=Add-Control $ed 'Forms.Label.1' ('lab'+$i) $fieldNames[$i] 16 $top 145 20; $lab.Font.Bold=$true; $type=if($controlNames[$i] -like 'cmb*'){'Forms.ComboBox.1'}else{'Forms.TextBox.1'}; $height=if($i -ge 8){55}else{23}; $ctl=Add-Control $ed $type $controlNames[$i] $null 165 $top 440 $height; if($i -ge 8){$ctl.MultiLine=$true;$ctl.WordWrap=$true;$ctl.ScrollBars=2}; $top += $height+9 }
+  for($i=0;$i -lt $fieldNames.Count;$i++){ $lab=Add-Control $ed 'Forms.Label.1' ('lab'+$i) $fieldNames[$i] 16 $top 145 20; try{$lab.Font.Bold=$true}catch{}; $type=if($controlNames[$i] -like 'cmb*'){'Forms.ComboBox.1'}else{'Forms.TextBox.1'}; $height=if($i -ge 8){55}else{23}; $ctl=Add-Control $ed $type $controlNames[$i] $null 165 $top 440 $height; if($i -ge 8){$ctl.MultiLine=$true;$ctl.WordWrap=$true;$ctl.ScrollBars=2}; $top += $height+9 }
   Add-Control $ed 'Forms.CommandButton.1' 'btnSave' '저장' 405 565 95 32 | Out-Null; Add-Control $ed 'Forms.CommandButton.1' 'btnCancel' '취소' 510 565 95 32 | Out-Null
   $edit.CodeModule.AddFromString(@'
 Option Explicit
@@ -177,7 +178,7 @@ Private Sub btnCancel_Click(): Unload Me: End Sub
   }
 
   Write-Output 'STEP=SHEET_EVENTS'
-  if($false){
+  if($true){
   $sheetModule=$vb.VBComponents.Item($explorer.CodeName)
   $sheetModule.CodeModule.AddFromString(@'
 Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
@@ -185,15 +186,14 @@ Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean
 End Sub
 '@)
   foreach($pair in @(@('레이어 현황','FilterFromLayer'),@('본부별 현황','FilterFromHeadquarters'))){$ws=$book.Worksheets.Item($pair[0]);$comp=$vb.VBComponents.Item($ws.CodeName);$macro=$pair[1];$comp.CodeModule.AddFromString("Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)`r`n If Target.Column=2 And Target.Row>=7 Then Cancel=True: $macro`r`nEnd Sub")}
-  $thisBook=$vb.VBComponents.Item('ThisWorkbook'); $thisBook.CodeModule.AddFromString("Private Sub Workbook_Open()`r`n Worksheets(""대시보드"").Activate`r`n RefreshExplorer`r`nEnd Sub")
+  $thisBook=$vb.VBComponents|Where-Object{$_.Type -eq 100 -and $_.Name -like 'ThisWorkbook*'}|Select-Object -First 1;if($thisBook){$thisBook.CodeModule.AddFromString("Private Sub Workbook_Open()`r`n Worksheets(""대시보드"").Activate`r`n RefreshExplorer`r`nEnd Sub")}
   }
 
   Write-Output 'STEP=BUTTONS'
-  $dashboardSheet=$book.Worksheets.Item('대시보드'); Add-Button $dashboardSheet 'goExplorer' '사업 탐색' 28 122 110 'GoExplorer'; Add-Button $dashboardSheet 'newProject' '신규 등록' 148 122 110 'NewProject' 0x588B45; Add-Button $dashboardSheet 'goLayer' '레이어 현황' 268 122 110 'GoLayer' 0x9B8060; Add-Button $dashboardSheet 'goHq' '본부별 현황' 388 122 110 'GoHeadquarters' 0x9B8060; Add-Button $dashboardSheet 'goDb' '사업 DB' 508 122 110 'GoDatabase' 0x9B8060
-  Add-Button $explorer 'showSelected' '선택 사업 상세' 870 124 120 'ShowSelectedProject' 0x588B45
-  Add-Button $layerSheet 'filterLayer' '선택 레이어 사업보기' 420 82 150 'FilterFromLayer' 0x588B45;Add-Button $hqSheet 'filterHq' '선택 본부 사업보기' 420 82 150 'FilterFromHeadquarters' 0x588B45
-  Add-Button $detail 'editCurrent' '이 사업 수정' 570 470 120 'EditCurrentProject' 0x588B45;Add-Button $detail 'backExplorer' '목록으로' 700 470 100 'GoExplorer' 0x9B8060
-  Add-Button $editor 'saveProject' '저장' 570 470 100 'SaveProject' 0x588B45;Add-Button $editor 'cancelEdit' '취소' 680 470 100 'GoExplorer' 0x9B8060
+  $dashboardSheet=$book.Worksheets.Item('대시보드'); Add-Button $dashboardSheet 'goExplorer' '사업 탐색' 620 42 110 'GoExplorer'; Add-Button $dashboardSheet 'newProject' '신규 등록' 740 42 110 'NewProject' 0x588B45; Add-Button $dashboardSheet 'goLayer' '레이어 현황' 620 78 110 'GoLayer' 0x9B8060; Add-Button $dashboardSheet 'goHq' '본부별 현황' 740 78 110 'GoHeadquarters' 0x9B8060; Add-Button $dashboardSheet 'goDb' '사업 DB' 860 78 90 'GoDatabase' 0x9B8060
+  Add-Button $explorer 'showSelected' '선택 사업 상세' 710 78 120 'ShowSelectedProject' 0x588B45
+  Add-Button $layerSheet 'filterLayer' '선택 레이어 사업보기' 620 42 150 'FilterFromLayer' 0x588B45;Add-Button $hqSheet 'filterHq' '선택 본부 사업보기' 620 42 150 'FilterFromHeadquarters' 0x588B45
+  $detail.Visible=2;$editor.Visible=2
   $book.Worksheets.Item('사업 DB').Visible=1
   Write-Output 'STEP=SAVE'
   $dashboard.Activate()
