@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node build-nipa-ai-budget-dashboard.mjs",
     "build:excel": "node build-nipa-budget-workbook.mjs",
+    "build:excel-app": "powershell -ExecutionPolicy Bypass -File build-nipa-excel-app.ps1",
     "serve": "node serve-dashboard.mjs"
   },
   "dependencies": {
