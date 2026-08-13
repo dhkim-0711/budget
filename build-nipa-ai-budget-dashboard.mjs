@@ -1207,6 +1207,160 @@ html = html
   .replace('function renderOrgChart() {', `${nipaHeadquartersRenderer}\nfunction renderOrgChart() {`)
   .replace('renderOrgChart();', 'renderOrgChart();\nrenderNipaHeadquarters();');
 
+const excelJsBundlePath = path.join(root, 'node_modules', 'exceljs', 'dist', 'exceljs.min.js');
+if (!fs.existsSync(excelJsBundlePath)) throw new Error('엑셀 기능에 필요한 exceljs.min.js를 찾을 수 없습니다. npm install을 실행하세요.');
+const excelJsBundle = fs.readFileSync(excelJsBundlePath, 'utf8').replace(/<\/script/gi, '<\\/script');
+const excelManagerStyles = `
+<style>
+.excel-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.excel-card{padding:18px}.excel-card h2{margin:0 0 6px}.excel-card h3{margin:18px 0 8px;font-size:15px}.excel-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.excel-btn{border:1px solid #b8c7d9;background:#fff;color:#17324f;border-radius:8px;padding:9px 13px;font:inherit;font-weight:800;cursor:pointer}.excel-btn.primary{background:#245f9e;color:#fff;border-color:#245f9e}.excel-btn:disabled{opacity:.45;cursor:not-allowed}.excel-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px;padding:12px;background:#f7fafc;border:1px solid var(--line-soft);border-radius:8px}.excel-fields label,.excel-project-list label{display:flex;gap:7px;align-items:flex-start;font-size:13px}.excel-project-list{max-height:310px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px;padding:8px;background:#fff}.excel-project-list label{padding:7px;border-bottom:1px solid var(--line-soft)}.excel-project-list label:last-child{border-bottom:0}.excel-upload{display:block;border:1px dashed #92aac3;border-radius:8px;padding:14px;background:#f7fafc}.excel-status{margin-top:10px;padding:10px 12px;border-radius:8px;background:#eef5fb;color:#254766;font-size:13px;white-space:pre-line}.excel-status.error{background:#fff0f0;color:#922}.excel-preview{max-height:330px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px}.excel-preview table{width:100%;border-collapse:collapse;font-size:12px}.excel-preview th,.excel-preview td{padding:7px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top}.excel-preview th{position:sticky;top:0;background:#f7fafc}.excel-help{font-size:13px;color:var(--muted);line-height:1.55}.excel-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:800;background:#e7f1fb;color:#245f9e}.excel-badge.bad{background:#ffe8e8;color:#922}
+@media(max-width:820px){.excel-layout{grid-template-columns:1fr}.excel-fields{grid-template-columns:1fr}}
+</style>`;
+const excelManagerPanel = `
+<section id="excel-manager" class="panel">
+  <div class="excel-layout">
+    <article class="card excel-card">
+      <h2>엑셀 내보내기</h2>
+      <p class="excel-help">예산 현황판의 현재 검색·레이어·조직 필터 결과에서 사업과 열을 선택해 엑셀로 저장합니다.</p>
+      <h3>내보낼 항목</h3>
+      <div class="excel-fields" id="excelFieldList"></div>
+      <div class="excel-actions"><button class="excel-btn" id="excelSelectAllFields" type="button">항목 전체 선택</button><button class="excel-btn" id="excelClearFields" type="button">항목 해제</button></div>
+      <h3>사업 선택 <span class="excel-badge" id="excelProjectCount">0건</span></h3>
+      <div class="excel-actions"><button class="excel-btn" id="excelRefreshProjects" type="button">현재 필터 불러오기</button><button class="excel-btn" id="excelSelectAllProjects" type="button">사업 전체 선택</button><button class="excel-btn" id="excelClearProjects" type="button">사업 해제</button></div>
+      <div class="excel-project-list" id="excelProjectList"></div>
+      <div class="excel-actions"><button class="excel-btn primary" id="excelExportSelected" type="button">선택 자료 엑셀 다운로드</button><button class="excel-btn" id="excelExportAll" type="button">전체 DB 엑셀 다운로드</button></div>
+      <div class="excel-status" id="excelExportStatus">현재 필터를 불러온 뒤 사업과 항목을 선택하세요.</div>
+    </article>
+    <article class="card excel-card">
+      <h2>신규 사업 추가</h2>
+      <p class="excel-help">기본 양식을 내려받아 작성한 후 업로드하세요. 사업명과 세부사업명이 다르면 내역사업 카드로 추가됩니다.</p>
+      <div class="excel-actions"><button class="excel-btn primary" id="excelDownloadTemplate" type="button">신규 사업 입력 양식 다운로드</button></div>
+      <label class="excel-upload">작성한 엑셀 파일 선택<input id="excelImportFile" type="file" accept=".xlsx" style="display:block;margin-top:9px"></label>
+      <div class="excel-status" id="excelImportStatus">아직 선택한 파일이 없습니다.</div>
+      <div class="excel-preview" id="excelImportPreview" hidden></div>
+      <div class="excel-actions"><button class="excel-btn primary" id="excelConfirmImport" type="button" disabled>검증된 사업 추가</button><button class="excel-btn" id="excelClearImported" type="button">브라우저 추가자료 초기화</button></div>
+      <p class="excel-help">추가자료는 현재 브라우저의 로컬 저장소에 보존됩니다. 다른 PC와 공유하려면 ‘전체 DB 엑셀 다운로드’로 파일을 저장해 전달하세요.</p>
+    </article>
+  </div>
+</section>`;
+html = html
+  .replace('</head>', `${excelManagerStyles}\n</head>`)
+  .replace(/(<button class="tab" data-panel="nipa-headquarters">NIPA 본부별 사업현황<\/button>)/, '$1\n    <button class="tab" data-panel="excel-manager">엑셀 자료관리</button>')
+  .replace('</main>', `${excelManagerPanel}\n</main>`);
+
+const excelManagerScript = `
+<script>${excelJsBundle}</script>
+<script>
+(() => {
+  const STORAGE_KEY = 'nipa-budget-custom-projects-v1';
+  const FIELD_DEFS = [
+    ['사업명','title'],['세부사업명','parentTitle'],['사업코드','code'],['회계','account'],
+    ['레이어','layer'],['과기정통부 소관','mappedOrgName'],['NIPA 본부','nipaHeadquarters'],['2026년 예산(백만원)','budget'],
+    ['개요','overview'],['주요내용','mainPoints'],['추진방향','direction']
+  ];
+  const REQUIRED = ['사업명','사업코드','회계','레이어','과기정통부 소관','NIPA 본부','2026년 예산(백만원)','개요','주요내용','추진방향'];
+  const VALID_ACCOUNTS = ['일반회계','특별회계','기금'];
+  const VALID_LAYERS = ['AI인프라','AI반도체','AI모델','지역AX','피지컬AI','글로벌 이니셔티브','AI생태계','산업전략','기관운영비'];
+  let exportRows = [];
+  let pendingRows = [];
+  const byId = (id) => document.getElementById(id);
+  const cellText = (value) => value == null ? '' : String(value).trim();
+  const listText = (value) => Array.isArray(value) ? value.join(' / ') : cellText(value);
+  const setStatus = (id, message, error = false) => { const el=byId(id); el.textContent=message; el.classList.toggle('error',error); };
+  const downloadWorkbook = async (workbook, name) => {
+    const buffer = await workbook.xlsx.writeBuffer();
+    const url = URL.createObjectURL(new Blob([buffer], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    const anchor = document.createElement('a'); anchor.href=url; anchor.download=name; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  };
+  const styleSheet = (sheet) => {
+    sheet.views = [{state:'frozen', ySplit:1}];
+    sheet.autoFilter = {from:{row:1,column:1},to:{row:Math.max(1,sheet.rowCount),column:sheet.columnCount}};
+    sheet.getRow(1).eachCell((cell) => {cell.font={bold:true,color:{argb:'FFFFFFFF'}};cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF245F9E'}};cell.alignment={vertical:'middle'};});
+    sheet.columns.forEach((column) => {column.width=Math.min(45,Math.max(14,...column.values.slice(1).map((v)=>String(v||'').length+2)));});
+  };
+  const exportValue = (project, key) => {
+    if (key === 'title') return project.detailTitle || String(project.title||'').replace(/^\\(내역\\)\\s*/, '');
+    if (key === 'parentTitle') return project.parentTitle || project.title || '';
+    if (key === 'nipaHeadquarters') return project.nipaHeadquarters || (typeof projectNipaHeadquarters==='function' ? projectNipaHeadquarters(project) : '');
+    if (key === 'mainPoints') return listText(project.sourceMainItems || project.detail?.mainPoints || project.mainPoints);
+    return project[key] ?? project.detail?.[key] ?? '';
+  };
+  const exportProjects = async (rows, fields, filename) => {
+    if (!rows.length || !fields.length) throw new Error('사업과 항목을 각각 하나 이상 선택하세요.');
+    const workbook = new ExcelJS.Workbook(); workbook.creator='NIPA Budget Dashboard';
+    const sheet = workbook.addWorksheet('사업자료');
+    sheet.addRow(fields.map(([label])=>label));
+    rows.forEach((project)=>sheet.addRow(fields.map(([,key])=>exportValue(project,key))));
+    styleSheet(sheet); await downloadWorkbook(workbook,filename);
+  };
+  const renderFields = () => {byId('excelFieldList').innerHTML=FIELD_DEFS.map(([label,key])=>'<label><input type="checkbox" data-excel-field="'+key+'" checked> '+escapeHtml(label)+'</label>').join('');};
+  const renderExportProjects = () => {
+    const selected = new Set([...document.querySelectorAll('[data-excel-project]:checked')].map((el)=>el.value));
+    byId('excelProjectList').innerHTML=exportRows.map((project,index)=>{const id=String(project.no);return '<label><input type="checkbox" data-excel-project value="'+escapeAttr(id)+'" '+(!selected.size||selected.has(id)?'checked':'')+'> <span><b>'+escapeHtml(project.title)+'</b><br><span class="muted">'+escapeHtml(project.code||'')+' · '+escapeHtml(project.layer||'')+' · '+money(project.budget)+'</span></span></label>';}).join('')||'<div class="muted" style="padding:10px">현재 조건에 해당하는 사업이 없습니다.</div>';
+    updateExportCount();
+  };
+  const updateExportCount = () => {const count=document.querySelectorAll('[data-excel-project]:checked').length;byId('excelProjectCount').textContent=count+'건 선택';};
+  const loadCurrentFilter = () => {exportRows=typeof filteredProjects==='function'?filteredProjects():[...PROJECTS];renderExportProjects();setStatus('excelExportStatus','현재 예산 현황판 조건에서 '+exportRows.length+'건을 불러왔습니다.');};
+  const templateWorkbook = async () => {
+    const wb=new ExcelJS.Workbook(); const sheet=wb.addWorksheet('신규사업입력');
+    sheet.addRow(FIELD_DEFS.map(([label])=>label));
+    sheet.addRow(['예시 사업','예시 세부사업','0000-000','일반회계','AI생태계','제2차관 / 인공지능정책실 / 담당관 / 담당과','AI활용본부',1000,'사업의 목적과 지원 대상을 작성','핵심 활동을 문장 또는 줄바꿈으로 작성','사업 특성에 맞는 추진방향을 작성']);
+    styleSheet(sheet); sheet.getRow(2).font={italic:true,color:{argb:'FF6B7280'}};
+    const guide=wb.addWorksheet('작성안내'); guide.addRows([
+      ['항목','작성 기준'],['사업명','필수. 카드에 표시할 사업 또는 내역사업명'],['세부사업명','선택. 사업명과 다르면 내역사업으로 등록'],['사업코드','필수. 0000-000 형식'],['회계','일반회계, 특별회계, 기금 중 선택'],['레이어',VALID_LAYERS.join(', ')],['과기정통부 소관','조직 경로를 / 로 구분'],['NIPA 본부','담당 본부명'],['2026년 예산(백만원)','숫자만 입력'],['개요·주요내용·추진방향','각 사업에 해당하는 내용만 작성']
+    ]); styleSheet(guide); await downloadWorkbook(wb,'NIPA_신규사업_입력양식.xlsx');
+  };
+  const worksheetRows = (sheet) => {
+    const headers=sheet.getRow(1).values.slice(1).map(cellText); const rows=[];
+    for(let r=2;r<=sheet.rowCount;r++){const obj={};headers.forEach((h,i)=>obj[h]=cellText(sheet.getRow(r).getCell(i+1).value?.text ?? sheet.getRow(r).getCell(i+1).value));if(Object.values(obj).some(Boolean))rows.push({...obj,__row:r});} return {headers,rows};
+  };
+  const validateImport = ({headers,rows}) => {
+    const missingHeaders=FIELD_DEFS.map(([label])=>label).filter((label)=>!headers.includes(label));
+    if(missingHeaders.length)return {valid:[],invalid:[{__row:1,__errors:['양식 열 누락: '+missingHeaders.join(', ')]}]};
+    const existing=new Set(PROJECTS.map((p)=>[p.code,p.parentTitle||p.title,p.detailTitle||p.title].map((v)=>cellText(v).replace(/^\\(내역\\)\\s*/,'')).join('|')));
+    const seen=new Set(); const valid=[],invalid=[];
+    rows.forEach((row)=>{const errors=[];REQUIRED.forEach((key)=>{if(!cellText(row[key]))errors.push(key+' 필수');});
+      if(row['사업코드']&&!/^\\d{4}-\\d{3}$/.test(row['사업코드']))errors.push('사업코드 형식 오류');
+      if(row['회계']&&!VALID_ACCOUNTS.includes(row['회계']))errors.push('회계 선택값 오류');
+      if(row['레이어']&&!VALID_LAYERS.includes(row['레이어']))errors.push('레이어 선택값 오류');
+      const budget=Number(String(row['2026년 예산(백만원)']).replace(/,/g,''));if(!Number.isFinite(budget)||budget<0)errors.push('예산은 0 이상의 숫자');
+      const parent=row['세부사업명']||row['사업명'];const key=[row['사업코드'],parent,row['사업명']].join('|');if(existing.has(key)||seen.has(key))errors.push('기존 또는 파일 내 중복 사업');seen.add(key);
+      const target={...row,__budget:budget,__errors:errors};(errors.length?invalid:valid).push(target);
+    }); return {valid,invalid};
+  };
+  const showPreview = (result) => {
+    pendingRows=result.valid;const all=[...result.valid,...result.invalid].sort((a,b)=>a.__row-b.__row);
+    byId('excelImportPreview').hidden=false;byId('excelImportPreview').innerHTML='<table><thead><tr><th>행</th><th>사업명</th><th>코드</th><th>판정</th></tr></thead><tbody>'+all.map((r)=>'<tr><td>'+r.__row+'</td><td>'+escapeHtml(r['사업명']||'')+'</td><td>'+escapeHtml(r['사업코드']||'')+'</td><td>'+(r.__errors.length?'<span class="excel-badge bad">'+escapeHtml(r.__errors.join(' · '))+'</span>':'<span class="excel-badge">추가 가능</span>')+'</td></tr>').join('')+'</tbody></table>';
+    byId('excelConfirmImport').disabled=!result.valid.length;setStatus('excelImportStatus','추가 가능 '+result.valid.length+'건 · 오류 '+result.invalid.length+'건',result.invalid.length>0);
+  };
+  const rowToProject = (row,index) => {
+    const title=row['사업명'],parent=row['세부사업명']||title,isDetail=parent!==title,layer=LAYERS.find((x)=>x.id===row['레이어'])||{id:row['레이어'],name:row['레이어'],color:'#607d9b'};
+    const main=String(row['주요내용']).split(/\\r?\\n|\\s*\\/\\s*/).map((x)=>x.trim()).filter(Boolean);
+    const customId='custom-'+Date.now()+'-'+index;
+    return {no:customId,sourceNo:customId,detailNo:1,isDetail,parentTitle:parent,detailTitle:isDetail?title:'',title:isDetail?'(내역) '+title:title,code:row['사업코드'],account:row['회계'],layer:layer.id,layerName:layer.name||layer.id,layerColor:layer.color||'#607d9b',mappedOrgName:row['과기정통부 소관'],orgName:row['과기정통부 소관'],orgUnit:row['과기정통부 소관'],orgDivision:String(row['과기정통부 소관']).split(' / ')[0],orgDepartments:[row['과기정통부 소관']],orgPathKey:String(row['과기정통부 소관']).split(' / ').slice(0,3).join(' / '),nipaHeadquarters:row['NIPA 본부'],operator:'정보통신산업진흥원',budget:row.__budget,budgetSource:'사용자 엑셀 추가',overview:row['개요'],sourcePurposeItems:[row['개요']],sourceMainItems:main,mainPoints:main.join(' / '),direction:row['추진방향'],displayMode:isDetail?'nipa-detail-only':'custom',detailBreakdown:[{title,budget:row.__budget}],detail:{type:layer.name||layer.id,displayTitle:title,parentTitle:parent,overview:row['개요'],mainPoints:main,direction:row['추진방향'],details:[{title,budget:row.__budget}],source:'사용자 업로드 엑셀'}};
+  };
+  const registerProject = (project) => {
+    PROJECTS.push(project); ORG_PROJECTS.push({...project,no:project.no+'-org'}); NIPA_HQ_PROJECTS.push({...project,no:project.no+'-hq'});
+    let layer=LAYERS.find((x)=>x.id===project.layer);if(layer){layer.count=(layer.count||0)+1;layer.budget=(layer.budget||0)+project.budget;}
+    let hq=NIPA_HEADQUARTERS.find((x)=>x.name===project.nipaHeadquarters);if(hq){hq.count=(hq.count||0)+1;hq.budget=(hq.budget||0)+project.budget;}else NIPA_HEADQUARTERS.push({name:project.nipaHeadquarters,color:'#607d9b',count:1,budget:project.budget});
+  };
+  const loadStored = () => {try{JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]').forEach(registerProject);}catch(error){console.warn(error);}};
+  const commitImport = () => {const projects=pendingRows.map(rowToProject);projects.forEach(registerProject);const stored=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');localStorage.setItem(STORAGE_KEY,JSON.stringify([...stored,...projects]));pendingRows=[];byId('excelConfirmImport').disabled=true;renderDashboard();renderEcosystem();renderOrgChart();renderNipaHeadquarters();loadCurrentFilter();setStatus('excelImportStatus',projects.length+'건을 추가하고 현재 브라우저에 저장했습니다.');};
+  renderFields(); loadStored();
+  byId('excelRefreshProjects').addEventListener('click',loadCurrentFilter);byId('excelProjectList').addEventListener('change',updateExportCount);
+  byId('excelSelectAllFields').addEventListener('click',()=>document.querySelectorAll('[data-excel-field]').forEach((x)=>x.checked=true));byId('excelClearFields').addEventListener('click',()=>document.querySelectorAll('[data-excel-field]').forEach((x)=>x.checked=false));
+  byId('excelSelectAllProjects').addEventListener('click',()=>{document.querySelectorAll('[data-excel-project]').forEach((x)=>x.checked=true);updateExportCount();});byId('excelClearProjects').addEventListener('click',()=>{document.querySelectorAll('[data-excel-project]').forEach((x)=>x.checked=false);updateExportCount();});
+  byId('excelExportSelected').addEventListener('click',async()=>{try{const ids=new Set([...document.querySelectorAll('[data-excel-project]:checked')].map((x)=>x.value)),rows=exportRows.filter((x)=>ids.has(String(x.no))),keys=new Set([...document.querySelectorAll('[data-excel-field]:checked')].map((x)=>x.dataset.excelField)),fields=FIELD_DEFS.filter(([,key])=>keys.has(key));await exportProjects(rows,fields,'NIPA_선택사업.xlsx');setStatus('excelExportStatus',rows.length+'건을 내려받았습니다.');}catch(error){setStatus('excelExportStatus',error.message,true);}});
+  byId('excelExportAll').addEventListener('click',async()=>{try{await exportProjects(PROJECTS,FIELD_DEFS,'NIPA_전체사업DB.xlsx');setStatus('excelExportStatus',PROJECTS.length+'건의 전체 DB를 내려받았습니다.');}catch(error){setStatus('excelExportStatus',error.message,true);}});
+  byId('excelDownloadTemplate').addEventListener('click',templateWorkbook);
+  byId('excelImportFile').addEventListener('change',async(event)=>{try{const file=event.target.files[0];if(!file)return;const wb=new ExcelJS.Workbook();await wb.xlsx.load(await file.arrayBuffer());const sheet=wb.getWorksheet('신규사업입력')||wb.worksheets[0];showPreview(validateImport(worksheetRows(sheet)));}catch(error){pendingRows=[];byId('excelConfirmImport').disabled=true;setStatus('excelImportStatus','파일을 읽지 못했습니다: '+error.message,true);}});
+  byId('excelConfirmImport').addEventListener('click',commitImport);byId('excelClearImported').addEventListener('click',()=>{if(!confirm('이 브라우저에서 추가한 사업을 모두 삭제할까요?'))return;localStorage.removeItem(STORAGE_KEY);location.reload();});
+  document.querySelector('[data-panel="excel-manager"]').addEventListener('click',loadCurrentFilter);
+  renderDashboard(); renderEcosystem(); renderOrgChart(); renderNipaHeadquarters();
+})();
+</script>`;
+html = html.replace('</body>', `${excelManagerScript}\n</body>`);
+
 const payload = {
   generatedAt: new Date().toISOString(),
   source: '과학기술정보통신부 2026년 예산 및 기금운용계획 사업설명자료 1~8권',

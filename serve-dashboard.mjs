@@ -15,7 +15,7 @@ function contentType(file) {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
-  const route = url.pathname === '/' ? '/motie-ai-budget-dashboard.html' : url.pathname;
+  const route = url.pathname === '/' ? '/index.html' : url.pathname;
   const file = path.resolve(root, `.${decodeURIComponent(route)}`);
   if (!file.startsWith(root)) {
     res.writeHead(403);
