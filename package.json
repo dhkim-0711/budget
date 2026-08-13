@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node build-nipa-ai-budget-dashboard.mjs",
+    "build:excel": "node build-nipa-budget-workbook.mjs",
     "serve": "node serve-dashboard.mjs"
   },
   "dependencies": {
