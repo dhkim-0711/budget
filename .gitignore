@@ -1,0 +1,16 @@
+node_modules/
+.npm-cache/
+work/
+data/
+*.hwpx
+*.xlsx
+*.log
+
+# 조사·검토 과정의 중간 산출물
+*-audit.csv
+*-audit.json
+*-review.csv
+*-review.json
+research-input-summary.json
+pdf-hwpx-budget-comparison.*
+

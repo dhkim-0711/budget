@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-08-13T04:09:44.703Z",
+  "sourceDashboard": "ai-budget-ecosystem-dashboard.html",
+  "sourceProjectRows": 238,
+  "rawNipaTextCandidateBlocks": 89,
+  "evidenceQualifiedNipaBlocks": 80,
+  "selectedProjectRows": 96,
+  "parentProjects": 80,
+  "parentCardRows": 56,
+  "nipaDetailOnlyRows": 40,
+  "requestedControlTotalMillionKrw": 3020457,
+  "calculatedTotalMillionKrw": 3048922,
+  "controlTotalDifferenceMillionKrw": 28465,
+  "completeCardNarratives": true,
+  "organizationMappingComplete": true,
+  "organizationChartGroups": 9,
+  "organizationChartCountReconciles": true,
+  "organizationChartBudgetReconciles": true,
+  "sharedOperatorRows": 6,
+  "everyRowMentionsNipa": true,
+  "excludedKnownFalsePositives": {
+    "7176-104": true,
+    "7176-204": true,
+    "2533-301": true,
+    "7002-102": true
+  },
+  "inclusionEvidenceRule": "사업 머리부의 사업시행주체에 정보통신산업진흥원이 명시되거나, 사업명 자체가 정보통신산업진흥원 지원사업인 경우만 포함. 후속 내역표는 포함 판정이 아니라 NIPA 배정액 분리에만 사용",
+  "layerCountsReconcile": true,
+  "layerBudgetReconciles": true,
+  "accounts": [
+    "일반회계",
+    "특별회계",
+    "기금"
+  ],
+  "sourceBooks": [
+    "04_2026년 예산 및 기금운용계획 사업설명자료(공개) 4권_일반회계.txt",
+    "05_2026년 예산 및 기금운용계획 사업설명자료(공개) 5권_특별회계.txt",
+    "02_2026년 예산 및 기금운용계획 사업설명자료(공개) 2권_일반회계.txt",
+    "07_2026년 예산 및 기금운용계획 사업설명자료(공개) 7권_기금.txt",
+    "08_2026년 예산 및 기금운용계획 사업설명자료(공개) 8권_기금.txt",
+    "03_2026년 예산 및 기금운용계획 사업설명자료(공개) 3권_일반회계.txt"
+  ]
+}

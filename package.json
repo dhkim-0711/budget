@@ -1,0 +1,13 @@
+{
+  "name": "nipa-budget-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-nipa-ai-budget-dashboard.mjs",
+    "serve": "node serve-dashboard.mjs"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}
