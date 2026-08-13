@@ -195,7 +195,7 @@ td{font-size:13px}.title-cell{font-weight:800}.muted{color:var(--muted);font-siz
 </style>
 
 <style>
-.excel-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.excel-card{padding:18px}.excel-card h2{margin:0 0 6px}.excel-card h3{margin:18px 0 8px;font-size:15px}.excel-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.excel-btn{border:1px solid #b8c7d9;background:#fff;color:#17324f;border-radius:8px;padding:9px 13px;font:inherit;font-weight:800;cursor:pointer}.excel-btn.primary{background:#245f9e;color:#fff;border-color:#245f9e}.excel-btn:disabled{opacity:.45;cursor:not-allowed}.excel-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px;padding:12px;background:#f7fafc;border:1px solid var(--line-soft);border-radius:8px}.excel-fields label,.excel-project-list label{display:flex;gap:7px;align-items:flex-start;font-size:13px}.excel-project-list{max-height:310px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px;padding:8px;background:#fff}.excel-project-list label{padding:7px;border-bottom:1px solid var(--line-soft)}.excel-project-list label:last-child{border-bottom:0}.excel-upload{display:block;border:1px dashed #92aac3;border-radius:8px;padding:14px;background:#f7fafc}.excel-status{margin-top:10px;padding:10px 12px;border-radius:8px;background:#eef5fb;color:#254766;font-size:13px;white-space:pre-line}.excel-status.error{background:#fff0f0;color:#922}.excel-preview{max-height:330px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px}.excel-preview table{width:100%;border-collapse:collapse;font-size:12px}.excel-preview th,.excel-preview td{padding:7px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top}.excel-preview th{position:sticky;top:0;background:#f7fafc}.excel-help{font-size:13px;color:var(--muted);line-height:1.55}.excel-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:800;background:#e7f1fb;color:#245f9e}.excel-badge.bad{background:#ffe8e8;color:#922}
+.excel-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.excel-card{padding:18px}.excel-card h2{margin:0 0 6px}.excel-card h3{margin:18px 0 8px;font-size:15px}.excel-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.excel-btn{border:1px solid #b8c7d9;background:#fff;color:#17324f;border-radius:8px;padding:9px 13px;font:inherit;font-weight:800;cursor:pointer}.excel-btn.primary{background:#245f9e;color:#fff;border-color:#245f9e}.excel-btn:disabled{opacity:.45;cursor:not-allowed}.excel-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 12px;padding:12px;background:#f7fafc;border:1px solid var(--line-soft);border-radius:8px}.excel-fields label,.excel-project-list label{display:flex;gap:7px;align-items:flex-start;font-size:13px}.excel-project-list{max-height:310px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px;padding:8px;background:#fff}.excel-project-list label{padding:7px;border-bottom:1px solid var(--line-soft)}.excel-project-list label:last-child{border-bottom:0}.excel-upload{display:block;border:1px dashed #92aac3;border-radius:8px;padding:14px;background:#f7fafc}.excel-status{margin-top:10px;padding:10px 12px;border-radius:8px;background:#eef5fb;color:#254766;font-size:13px;white-space:pre-line}.excel-status.error{background:#fff0f0;color:#922}.excel-preview{max-height:330px;overflow:auto;border:1px solid var(--line-soft);border-radius:8px}.excel-preview table{width:100%;border-collapse:collapse;font-size:12px}.excel-preview th,.excel-preview td{padding:7px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top}.excel-preview th{position:sticky;top:0;background:#f7fafc}.excel-help{font-size:13px;color:var(--muted);line-height:1.55}.excel-badge{display:inline-block;border-radius:999px;padding:2px 7px;font-size:11px;font-weight:800;background:#e7f1fb;color:#245f9e}.excel-badge.bad{background:#ffe8e8;color:#922}.excel-filter-summary{align-self:center;color:#516b85;font-size:12px;font-weight:700}.excel-filter-modal{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(14,32,52,.48)}.excel-filter-modal[hidden]{display:none}.excel-filter-dialog{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(11,35,60,.28)}.excel-filter-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line-soft)}.excel-filter-head h3{margin:0;font-size:19px}.excel-filter-body{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px}.excel-filter-body label{display:grid;gap:6px;color:#39536e;font-size:12px;font-weight:800}.excel-filter-body label:first-child{grid-column:1/-1}.excel-filter-body input,.excel-filter-body select{width:100%;box-sizing:border-box;border:1px solid #b8c7d9;border-radius:8px;padding:10px;background:#fff;color:#17324f;font:inherit}.excel-filter-foot{display:flex;justify-content:space-between;gap:8px;padding:0 20px 20px}
 @media(max-width:820px){.excel-layout{grid-template-columns:1fr}.excel-fields{grid-template-columns:1fr}}
 </style>
 </head>
@@ -293,7 +293,7 @@ td{font-size:13px}.title-cell{font-weight:800}.muted{color:var(--muted);font-siz
       <div class="excel-fields" id="excelFieldList"></div>
       <div class="excel-actions"><button class="excel-btn" id="excelSelectAllFields" type="button">항목 전체 선택</button><button class="excel-btn" id="excelClearFields" type="button">항목 해제</button></div>
       <h3>사업 선택 <span class="excel-badge" id="excelProjectCount">0건</span></h3>
-      <div class="excel-actions"><button class="excel-btn" id="excelRefreshProjects" type="button">현재 필터 불러오기</button><button class="excel-btn" id="excelSelectAllProjects" type="button">사업 전체 선택</button><button class="excel-btn" id="excelClearProjects" type="button">사업 해제</button></div>
+      <div class="excel-actions"><button class="excel-btn primary" id="excelOpenFilter" type="button">필터 적용하기</button><span class="excel-filter-summary" id="excelFilterSummary">전체 사업</span><button class="excel-btn" id="excelSelectAllProjects" type="button">사업 전체 선택</button><button class="excel-btn" id="excelClearProjects" type="button">사업 해제</button></div>
       <div class="excel-project-list" id="excelProjectList"></div>
       <div class="excel-actions"><button class="excel-btn primary" id="excelExportSelected" type="button">선택 자료 엑셀 다운로드</button><button class="excel-btn" id="excelExportAll" type="button">전체 DB 엑셀 다운로드</button></div>
       <div class="excel-status" id="excelExportStatus">현재 필터를 불러온 뒤 사업과 항목을 선택하세요.</div>
@@ -308,6 +308,19 @@ td{font-size:13px}.title-cell{font-weight:800}.muted{color:var(--muted);font-siz
       <div class="excel-actions"><button class="excel-btn primary" id="excelConfirmImport" type="button" disabled>검증된 사업 추가</button><button class="excel-btn" id="excelClearImported" type="button">브라우저 추가자료 초기화</button></div>
       <p class="excel-help">추가자료는 현재 브라우저의 로컬 저장소에 보존됩니다. 다른 PC와 공유하려면 ‘전체 DB 엑셀 다운로드’로 파일을 저장해 전달하세요.</p>
     </article>
+  </div>
+  <div class="excel-filter-modal" id="excelFilterModal" role="dialog" aria-modal="true" aria-labelledby="excelFilterTitle" hidden>
+    <div class="excel-filter-dialog">
+      <div class="excel-filter-head"><h3 id="excelFilterTitle">엑셀 내보내기 필터</h3><button class="excel-btn" id="excelCloseFilter" type="button" aria-label="닫기">닫기</button></div>
+      <div class="excel-filter-body">
+        <label>사업명·사업코드 검색<input id="excelFilterQuery" type="search" placeholder="검색어 입력"></label>
+        <label>레이어<select id="excelFilterLayer"></select></label>
+        <label>회계<select id="excelFilterAccount"></select></label>
+        <label>과기정통부 소관<select id="excelFilterOrg"></select></label>
+        <label>NIPA 본부<select id="excelFilterHq"></select></label>
+      </div>
+      <div class="excel-filter-foot"><button class="excel-btn" id="excelResetFilter" type="button">조건 초기화</button><button class="excel-btn primary" id="excelApplyFilter" type="button">필터 적용</button></div>
+    </div>
   </div>
 </section>
 </main>
@@ -862,6 +875,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   const VALID_LAYERS = ['AI인프라','AI반도체','AI모델','지역AX','피지컬AI','글로벌 이니셔티브','AI생태계','산업전략','기관운영비'];
   let exportRows = [];
   let pendingRows = [];
+  let excelFilters = {query:'',layer:'',account:'',org:'',hq:''};
   const byId = (id) => document.getElementById(id);
   const cellText = (value) => value == null ? '' : String(value).trim();
   const listText = (value) => Array.isArray(value) ? value.join(' / ') : cellText(value);
@@ -900,7 +914,24 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     updateExportCount();
   };
   const updateExportCount = () => {const count=document.querySelectorAll('[data-excel-project]:checked').length;byId('excelProjectCount').textContent=count+'건 선택';};
-  const loadCurrentFilter = () => {exportRows=typeof filteredProjects==='function'?filteredProjects():[...PROJECTS];renderExportProjects();setStatus('excelExportStatus','현재 예산 현황판 조건에서 '+exportRows.length+'건을 불러왔습니다.');};
+  const uniqueOptions = (values) => [...new Set(values.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  const excelProjectHq = (project) => project.nipaHeadquarters || (typeof projectNipaHeadquarters==='function' ? projectNipaHeadquarters(project) : '');
+  const fillFilterSelect = (id,label,values) => {byId(id).innerHTML='<option value="">'+label+'</option>'+values.map((value)=>'<option value="'+escapeAttr(value)+'">'+escapeHtml(value)+'</option>').join('');};
+  const initExcelFilters = () => {
+    fillFilterSelect('excelFilterLayer','전체 레이어',LAYERS.map((x)=>x.id));
+    fillFilterSelect('excelFilterAccount','전체 회계',uniqueOptions(PROJECTS.map((x)=>x.account)));
+    fillFilterSelect('excelFilterOrg','전체 소관',uniqueOptions(PROJECTS.map((x)=>x.mappedOrgName)));
+    fillFilterSelect('excelFilterHq','전체 본부',uniqueOptions(PROJECTS.map(excelProjectHq)));
+    byId('excelFilterQuery').value=excelFilters.query;
+    byId('excelFilterLayer').value=excelFilters.layer;byId('excelFilterAccount').value=excelFilters.account;byId('excelFilterOrg').value=excelFilters.org;byId('excelFilterHq').value=excelFilters.hq;
+  };
+  const applyExcelFilters = () => {
+    excelFilters={query:cellText(byId('excelFilterQuery').value).toLowerCase(),layer:byId('excelFilterLayer').value,account:byId('excelFilterAccount').value,org:byId('excelFilterOrg').value,hq:byId('excelFilterHq').value};
+    exportRows=PROJECTS.filter((project)=>{const hay=[project.title,project.detailTitle,project.parentTitle,project.code].join(' ').toLowerCase();return (!excelFilters.query||hay.includes(excelFilters.query))&&(!excelFilters.layer||project.layer===excelFilters.layer)&&(!excelFilters.account||project.account===excelFilters.account)&&(!excelFilters.org||project.mappedOrgName===excelFilters.org)&&(!excelFilters.hq||excelProjectHq(project)===excelFilters.hq);});
+    renderExportProjects();const count=Object.values(excelFilters).filter(Boolean).length;byId('excelFilterSummary').textContent=(count?count+'개 조건 · ':'전체 · ')+exportRows.length+'건';setStatus('excelExportStatus','엑셀 자료관리 필터 결과 '+exportRows.length+'건을 불러왔습니다.');byId('excelFilterModal').hidden=true;
+  };
+  const resetExcelFilters = () => {byId('excelFilterQuery').value='';['excelFilterLayer','excelFilterAccount','excelFilterOrg','excelFilterHq'].forEach((id)=>byId(id).value='');};
+  const loadCurrentFilter = () => {initExcelFilters();applyExcelFilters();};
   const templateWorkbook = async () => {
     const wb=new ExcelJS.Workbook(); const sheet=wb.addWorksheet('신규사업입력');
     sheet.addRow(FIELD_DEFS.map(([label])=>label));
@@ -947,7 +978,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   const loadStored = () => {try{JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]').forEach(registerProject);}catch(error){console.warn(error);}};
   const commitImport = () => {const projects=pendingRows.map(rowToProject);projects.forEach(registerProject);const stored=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');localStorage.setItem(STORAGE_KEY,JSON.stringify([...stored,...projects]));pendingRows=[];byId('excelConfirmImport').disabled=true;renderDashboard();renderEcosystem();renderOrgChart();renderNipaHeadquarters();loadCurrentFilter();setStatus('excelImportStatus',projects.length+'건을 추가하고 현재 브라우저에 저장했습니다.');};
   renderFields(); loadStored();
-  byId('excelRefreshProjects').addEventListener('click',loadCurrentFilter);byId('excelProjectList').addEventListener('change',updateExportCount);
+  byId('excelOpenFilter').addEventListener('click',()=>{byId('excelFilterModal').hidden=false;byId('excelFilterQuery').focus();});byId('excelCloseFilter').addEventListener('click',()=>byId('excelFilterModal').hidden=true);byId('excelFilterModal').addEventListener('click',(event)=>{if(event.target===byId('excelFilterModal'))byId('excelFilterModal').hidden=true;});byId('excelApplyFilter').addEventListener('click',applyExcelFilters);byId('excelResetFilter').addEventListener('click',()=>{resetExcelFilters();applyExcelFilters();});byId('excelProjectList').addEventListener('change',updateExportCount);
   byId('excelSelectAllFields').addEventListener('click',()=>document.querySelectorAll('[data-excel-field]').forEach((x)=>x.checked=true));byId('excelClearFields').addEventListener('click',()=>document.querySelectorAll('[data-excel-field]').forEach((x)=>x.checked=false));
   byId('excelSelectAllProjects').addEventListener('click',()=>{document.querySelectorAll('[data-excel-project]').forEach((x)=>x.checked=true);updateExportCount();});byId('excelClearProjects').addEventListener('click',()=>{document.querySelectorAll('[data-excel-project]').forEach((x)=>x.checked=false);updateExportCount();});
   byId('excelExportSelected').addEventListener('click',async()=>{try{const ids=new Set([...document.querySelectorAll('[data-excel-project]:checked')].map((x)=>x.value)),rows=exportRows.filter((x)=>ids.has(String(x.no))),keys=new Set([...document.querySelectorAll('[data-excel-field]:checked')].map((x)=>x.dataset.excelField)),fields=FIELD_DEFS.filter(([,key])=>keys.has(key));await exportProjects(rows,fields,'NIPA_선택사업.xlsx');setStatus('excelExportStatus',rows.length+'건을 내려받았습니다.');}catch(error){setStatus('excelExportStatus',error.message,true);}});
