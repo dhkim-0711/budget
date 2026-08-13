@@ -1325,19 +1325,25 @@ const excelManagerScript = `
   };
   const updateExportCount = () => {const count=document.querySelectorAll('[data-excel-project]:checked').length;byId('excelProjectCount').textContent=count+'건 선택';};
   const uniqueOptions = (values) => [...new Set(values.filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),'ko'));
-  const excelProjectHq = (project) => project.nipaHeadquarters || (typeof projectNipaHeadquarters==='function' ? projectNipaHeadquarters(project) : '');
+  const excelProjectHqs = (project) => {
+    const matched=(typeof NIPA_HQ_PROJECTS!=='undefined'&&typeof projectMatchKey==='function')?NIPA_HQ_PROJECTS.filter((item)=>projectMatchKey(item)===projectMatchKey(project)).map((item)=>item.nipaHeadquarters).filter(Boolean):[];
+    if(matched.length)return uniqueOptions(matched);
+    const fallback=project.nipaHeadquarters||(typeof projectNipaHeadquarters==='function'?projectNipaHeadquarters(project):'');
+    return uniqueOptions(cellText(fallback).split('·').map((value)=>value.trim()));
+  };
+  const excelProjectHq = (project) => excelProjectHqs(project).join(' · ');
   const fillFilterSelect = (id,label,values) => {byId(id).innerHTML='<option value="">'+label+'</option>'+values.map((value)=>'<option value="'+escapeAttr(value)+'">'+escapeHtml(value)+'</option>').join('');};
   const initExcelFilters = () => {
     fillFilterSelect('excelFilterLayer','전체 레이어',LAYERS.map((x)=>x.id));
     fillFilterSelect('excelFilterAccount','전체 회계',uniqueOptions(PROJECTS.map((x)=>x.account)));
     fillFilterSelect('excelFilterOrg','전체 소관',uniqueOptions(PROJECTS.map((x)=>x.mappedOrgName)));
-    fillFilterSelect('excelFilterHq','전체 본부',uniqueOptions(PROJECTS.map(excelProjectHq)));
+    fillFilterSelect('excelFilterHq','전체 본부',uniqueOptions(PROJECTS.flatMap(excelProjectHqs)));
     byId('excelFilterQuery').value=excelFilters.query;
     byId('excelFilterLayer').value=excelFilters.layer;byId('excelFilterAccount').value=excelFilters.account;byId('excelFilterOrg').value=excelFilters.org;byId('excelFilterHq').value=excelFilters.hq;
   };
   const applyExcelFilters = () => {
     excelFilters={query:cellText(byId('excelFilterQuery').value).toLowerCase(),layer:byId('excelFilterLayer').value,account:byId('excelFilterAccount').value,org:byId('excelFilterOrg').value,hq:byId('excelFilterHq').value};
-    exportRows=PROJECTS.filter((project)=>{const hay=[project.title,project.detailTitle,project.parentTitle,project.code].join(' ').toLowerCase();return (!excelFilters.query||hay.includes(excelFilters.query))&&(!excelFilters.layer||project.layer===excelFilters.layer)&&(!excelFilters.account||project.account===excelFilters.account)&&(!excelFilters.org||project.mappedOrgName===excelFilters.org)&&(!excelFilters.hq||excelProjectHq(project)===excelFilters.hq);});
+    exportRows=PROJECTS.filter((project)=>{const hay=[project.title,project.detailTitle,project.parentTitle,project.code].join(' ').toLowerCase();return (!excelFilters.query||hay.includes(excelFilters.query))&&(!excelFilters.layer||project.layer===excelFilters.layer)&&(!excelFilters.account||project.account===excelFilters.account)&&(!excelFilters.org||project.mappedOrgName===excelFilters.org)&&(!excelFilters.hq||excelProjectHqs(project).includes(excelFilters.hq));});
     renderExportProjects();const count=Object.values(excelFilters).filter(Boolean).length;byId('excelFilterSummary').textContent=(count?count+'개 조건 · ':'전체 · ')+exportRows.length+'건';setStatus('excelExportStatus','엑셀 자료관리 필터 결과 '+exportRows.length+'건을 불러왔습니다.');byId('excelFilterModal').hidden=true;
   };
   const resetExcelFilters = () => {byId('excelFilterQuery').value='';['excelFilterLayer','excelFilterAccount','excelFilterOrg','excelFilterHq'].forEach((id)=>byId(id).value='');};
